@@ -1,0 +1,25 @@
+# Virtual environment
+.venv/
+env/
+venv/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Model weights (downloaded automatically at runtime)
+*.pt
+*.onnx
+
+# Test outputs & temporary files
+*.tmp
+*.log
+runs/
+
+# IDE files
+.vscode/
+.idea/
+*.swp

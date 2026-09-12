@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fruit Angle Detector — Multi-Fruit Computer Vision & Orientation</title>
+  <meta name="description" content="Upload multiple fruit images and detect their orientation angle automatically using computer vision and PCA mathematics.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <!-- Ambient background glow effects -->
+  <div class="glow-orb glow-top-left"></div>
+  <div class="glow-orb glow-top-right"></div>
+  <div class="glow-orb glow-bottom-center"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-wrapper">
+        <div class="logo-badge">
+          <span class="logo-icon">📐</span>
+          <span class="logo-fruit">🍌🍎🍊</span>
+        </div>
+        <div>
+          <div class="badge-pill">College Hackathon & Mini-Project Edition</div>
+          <h1 class="app-title">Fruit Angle Detector</h1>
+          <p class="app-description">Upload multiple fruit images and detect their orientation angle automatically.</p>
+        </div>
+      </div>
+      <div class="header-features">
+        <div class="feature-chip">
+          <span class="dot live"></span>
+          <span>Multi-Fruit Vision</span>
+        </div>
+        <div class="feature-chip">
+          <span>📐 PCA Contour Math</span>
+        </div>
+        <div class="feature-chip">
+          <span>⚡ Batch Analysis</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Supported Fruits Banner -->
+    <section class="supported-fruits-bar">
+      <span class="bar-title">Supported Fruits:</span>
+      <div class="fruits-ticker">
+        <span class="fruit-tag">🍌 Banana</span>
+        <span class="fruit-tag">🍎 Apple</span>
+        <span class="fruit-tag">🍊 Orange</span>
+        <span class="fruit-tag">🍉 Watermelon</span>
+        <span class="fruit-tag">🥭 Mango</span>
+        <span class="fruit-tag">🍍 Pineapple</span>
+        <span class="fruit-tag">🍈 Papaya</span>
+        <span class="fruit-tag">🍋 Lemon</span>
+        <span class="fruit-tag">🥒 Cucumber</span>
+        <span class="fruit-tag">🍐 Pear</span>
+        <span class="fruit-tag">🥝 Kiwi</span>
+      </div>
+    </section>
+
+    <!-- Main Upload & Control Card -->
+    <section class="upload-section card glass">
+      <div class="card-header">
+        <div class="card-title-group">
+          <h2>Upload Fruit Images</h2>
+          <p>Drag and drop 1, 2, 5, 10 or more images. Real-time vision detection without filename guessing.</p>
+        </div>
+        <div class="sample-cta">
+          <button id="loadDemoBtn" class="btn btn-secondary btn-sm" type="button">
+            <span>✨ Load Demo Images</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Drag and drop zone -->
+      <div id="dropZone" class="drop-zone">
+        <input type="file" id="fileInput" multiple accept="image/jpeg,image/png,image/webp,image/bmp" class="file-input-hidden">
+        <div class="drop-zone-content">
+          <div class="upload-icon-wrapper">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <h3 class="drop-prompt">Drag & Drop fruit images here</h3>
+          <p class="drop-subtext">or browse files from your computer (select 1, 2, 5, 10+ at once)</p>
+          <button id="browseBtn" class="btn btn-outline" type="button">
+            <span>📁 Upload Images</span>
+          </button>
+          <div class="file-format-hints">
+            <span>Supports JPG, PNG, WEBP</span>
+            <span>•</span>
+            <span>Independent processing</span>
+            <span>•</span>
+            <span>High-accuracy orientation</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Queued Images Preview Tray -->
+      <div id="previewTray" class="preview-tray hidden">
+        <div class="tray-header">
+          <span class="tray-title">
+            Queued for Analysis (<span id="queuedCount">0</span> images selected)
+          </span>
+          <button id="clearQueueBtn" class="btn-text" type="button">Clear selection</button>
+        </div>
+        <div id="previewGrid" class="preview-grid">
+          <!-- Thumbnail previews inserted by JS -->
+        </div>
+      </div>
+
+      <!-- Action Buttons Bar -->
+      <div class="action-bar">
+        <div class="action-left">
+          <button id="analyzeBtn" class="btn btn-primary" type="button" disabled>
+            <span class="btn-icon">⚡</span>
+            <span>Analyze Images</span>
+          </button>
+          <button id="clearAllBtn" class="btn btn-danger" type="button">
+            <span class="btn-icon">🗑️</span>
+            <span>Clear All</span>
+          </button>
+        </div>
+
+        <div class="action-right">
+          <div id="processingIndicator" class="processing-pill hidden">
+            <div class="spinner"></div>
+            <span id="processingText">Processing images with Computer Vision...</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Analysis Summary Bar -->
+    <section id="summaryBar" class="summary-bar card glass hidden">
+      <div class="stat-card">
+        <span class="stat-label">Total Processed</span>
+        <span id="statTotal" class="stat-value">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Confidently Detected</span>
+        <span id="statDetected" class="stat-value text-success">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Unconfident / Not Fruit</span>
+        <span id="statUnconfident" class="stat-value text-danger">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Avg Fruit Angle</span>
+        <span id="statAvgAngle" class="stat-value text-accent">0.0°</span>
+      </div>
+    </section>
+
+    <!-- Multi-Fruit Batch Features: Leaderboard & Compatibility -->
+    <section id="multiFruitSection" class="multi-fruit-section hidden">
+      <!-- Useless Leaderboard -->
+      <div class="card glass leaderboard-card">
+        <div class="card-mini-header">
+          <span class="mini-badge">🏆 Useless Leaderboard</span>
+          <h3>Fruit Angle Hall of Fame</h3>
+        </div>
+        <div class="leaderboard-grid">
+          <div class="leaderboard-item">
+            <span class="lb-rank">📐</span>
+            <div class="lb-info">
+              <span class="lb-title">MOST TILTED FRUIT</span>
+              <span id="lbMostTilted" class="lb-value">—</span>
+            </div>
+          </div>
+          <div class="leaderboard-item">
+            <span class="lb-rank">🌀</span>
+            <div class="lb-info">
+              <span class="lb-title">MOST CONFUSED FRUIT</span>
+              <span id="lbMostConfused" class="lb-value">—</span>
+            </div>
+          </div>
+          <div class="leaderboard-item">
+            <span class="lb-rank">🎭</span>
+            <div class="lb-info">
+              <span class="lb-title">MOST DRAMATIC FRUIT</span>
+              <span id="lbMostDramatic" class="lb-value">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fruit Compatibility -->
+      <div class="card glass compatibility-card">
+        <div class="card-mini-header">
+          <span class="mini-badge">❤️ Fruit Compatibility</span>
+          <h3>Fruit Love & Chemistry Match</h3>
+        </div>
+        <div id="compatContent" class="compat-content">
+          <div class="compat-pair">
+            <span id="compatFruits" class="compat-names">🍎 Apple + 🍌 Banana</span>
+            <div class="compat-score-badge">
+              <span id="compatScore">87%</span> Match
+            </div>
+          </div>
+          <div class="compat-meter">
+            <div id="compatFill" class="compat-fill" style="width: 87%;"></div>
+          </div>
+          <p class="compat-status">Relationship status: <em id="compatStatus">“Probably a smoothie.”</em></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="results-section">
+      <div class="results-header">
+        <div class="results-title-group">
+          <h2>Detection & Orientation Results</h2>
+          <p>Orientation major axis, calculated angle (relative to horizontal 0°), and detection confidence.</p>
+        </div>
+        <div class="results-controls">
+          <div class="view-toggle">
+            <button id="btnViewAll" class="toggle-btn active" type="button">All (<span id="countAll">0</span>)</button>
+            <button id="btnViewDetected" class="toggle-btn" type="button">Detected (<span id="countDetected">0</span>)</button>
+            <button id="btnViewUnconfident" class="toggle-btn" type="button">Unconfident (<span id="countUnconfident">0</span>)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Grid -->
+      <div id="resultsGrid" class="results-grid">
+        <!-- Result cards will be dynamically appended here -->
+        <div id="emptyState" class="empty-state card glass">
+          <div class="empty-icon">🍇</div>
+          <h3>No images analyzed yet</h3>
+          <p>Select multiple fruit photos above and click <strong>"Analyze Images"</strong> to detect fruit species and measure their orientation angles.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Project Documentation / Methodology Footer for College Evaluation -->
+    <footer class="app-footer card glass">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h4>Computer Vision Pipeline</h4>
+          <p>Uses deep-learning object detection (YOLO architecture) to identify fruit classes and extract bounding ROIs without filename bias.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Angle & Axis Mathematics</h4>
+          <p>Applies adaptive color segmentation and <strong>Principal Component Analysis (PCA)</strong> on the foreground contour covariance matrix to compute the major orientation vector relative to horizontal axis [−90°, +90°].</p>
+        </div>
+        <div class="footer-col">
+          <h4>Zero Guessing Policy</h4>
+          <p>Any non-fruit or low-confidence detection explicitly reports <em>"Fruit not confidently detected"</em> to ensure scientific validity.</p>
+        </div>
+      </div>
+      <div class="humor-footer-banner">
+        <p class="humor-quote">“We solved a problem nobody had. 🍌”</p>
+        <span class="humor-subquote">Powered by questionable science.</span>
+      </div>
+      <div class="footer-bottom">
+        <span>Fruit Angle Detector — College Mini / Hackathon Project</span>
+        <span>•</span>
+        <span>FastAPI + OpenCV + Ultralytics Vision</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Modal: WHY? Dramatic Reveal -->
+  <div id="whyModal" class="modal-overlay hidden">
+    <div class="modal-card glass why-modal-card">
+      <button class="modal-close" id="closeWhyModal" type="button">&times;</button>
+      <div class="why-icon-orb">❓</div>
+      <div class="why-steps">
+        <h3 id="whyStep1" class="why-line why-fade-1">“Why are we measuring the angle of a fruit?”</h3>
+        <p id="whyStep2" class="why-line why-fade-2">“Nobody knows.”</p>
+        <div id="whyStep3" class="why-line why-fade-3 why-punchline">
+          “But at least we know it's <span id="whyAngleText" class="highlight-angle">37.4°</span>.”
+        </div>
+      </div>
+      <button id="whyDoneBtn" class="btn btn-primary" type="button">Understood. Absolutely Pointless.</button>
+    </div>
+  </div>
+
+  <!-- Modal: Official Fruit Certificate -->
+  <div id="certModal" class="modal-overlay hidden">
+    <div class="cert-modal-dialog">
+      <button class="modal-close" id="closeCertModal" type="button">&times;</button>
+      <div id="certificatePrintable" class="fruit-certificate">
+        <div class="cert-border-ornament">
+          <div class="cert-badge-ribbon">🏆 OFFICIAL</div>
+          <h2 class="cert-title">OFFICIAL FRUIT ANGLE CERTIFICATE</h2>
+          <p class="cert-subtitle">Bureau of Questionable Computational Botany</p>
+          <hr class="cert-hr">
+
+          <p class="cert-proclamation">
+            This certifies that the detected <strong id="certFruitName" class="cert-highlight">Apple</strong>
+            was positioned at <strong id="certFruitAngle" class="cert-highlight">32.5°</strong>
+            for absolutely no important reason.
+          </p>
+
+          <div class="cert-details-grid">
+            <div class="cert-metric">
+              <span class="cm-label">Species</span>
+              <span id="certFruitType" class="cm-val">Apple</span>
+            </div>
+            <div class="cert-metric">
+              <span class="cm-label">Detected Angle</span>
+              <span id="certAngleVal" class="cm-val">32.5°</span>
+            </div>
+            <div class="cert-metric">
+              <span class="cm-label">AI Confidence</span>
+              <span id="certConfidence" class="cm-val">94.2%</span>
+            </div>
+            <div class="cert-metric">
+              <span class="cm-label">Uselessness Score</span>
+              <span class="cm-val text-danger">97%</span>
+            </div>
+          </div>
+
+          <div class="cert-footer-row">
+            <div class="cert-seal">
+              <div class="seal-inner">
+                <span>QUESTIONABLE</span>
+                <strong>SCIENCE</strong>
+                <span>APPROVED</span>
+              </div>
+            </div>
+            <div class="cert-signatures">
+              <div class="signature-line">
+                <span class="sig-font">The Banana Council</span>
+                <span class="sig-title">Chief Fruit Inspector</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cert-actions">
+        <button id="printCertBtn" class="btn btn-primary" type="button">
+          <span>🖨️ Print / Save Certificate</span>
+        </button>
+        <button id="dismissCertBtn" class="btn btn-secondary" type="button">
+          <span>Close</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
