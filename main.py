@@ -187,8 +187,9 @@ async def get_sample_list():
 
 if __name__ == "__main__":
     import uvicorn
+    port = int(os.environ.get("PORT", 8000))
     print("\n========================================================")
-    print("   Starting Fruit Angle Detector Web Server on port 8000")
-    print("   Access via: http://localhost:8000")
+    print(f"   Starting Fruit Angle Detector Web Server on port {port}")
+    print(f"   Access via: http://localhost:{port}")
     print("========================================================\n")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=port)
