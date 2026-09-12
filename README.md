@@ -16,8 +16,7 @@ A computer-vision web application that detects multiple fruit species simultaneo
 
 ## 👥 Team
 - **Thamanna V** — Team Lead
-- **Adisha** — Team Member
-
+- **Adisha** — Team Lead
 ---
 
 ## 💡 Why This Project Exists
